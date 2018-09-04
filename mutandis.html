@@ -14,40 +14,28 @@
     // Callback function to execute when mutations are observed
     var callback = function(mutationsList) {
         for(var mutation of mutationsList) {
-          console.log(">>>> new mutation:");
-            console.log(mutation);
             if (mutation.type == 'childList') {
                 for(var child of mutation.addedNodes) {
-                  // if the child has a source and it doesn't start with mutandis, edit it
                   if (child.nodeType === ELEMENT_NODE && child.hasAttribute("src")) {
-                    console.log("child was", child.src);
-                    new_url = child.src + "/mutC";
-                    console.log("child modified to", child.src);
-                    mutandis_src = document.createAttribute("mutandis_src");
+                    var new_url = child.src + "/mutC";
+                    var mutandis_src = document.createAttribute("mutandis_src");
+                    mutandis_src.value=new_url;
                     child.setAttributeNode(mutandis_src);
-                    child.setAttribute("mutandis_src", new_url);
-                    child.src = new_url
-                    child.mutandis_src = child.src;
+                    child.setAttribute("src", new_url);
                   }
                 }
             }
             else if (mutation.type == 'attributes') {
-              attribute_count = attribute_count + 1
-              if (mutation.attributeName === "src" && 
-                (!mutation.target.hasAttribute("mutandis_src") || mutation.target.mutandis_src !== mutation.target.src) && 
-                MAX_ATTR > attribute_count) {
-                  console.log("SRC:"+mutation.target.src);
-                  console.log("M_SRC:"+mutation.target.mutandis_src);
-                  console.log(mutation.target.src === mutation.target.mutandis_src);
-                  var new_url = mutation.target.src + "/mut"+attribute_count;
-                  window.alert("mutandis: "+ new_url+ attribute_count);
-                  mutandis_src = document.createAttribute("mutandis_src");
+              attribute_count = attribute_count + 1;
+              var old_mutandis_src = mutation.target.getAttribute("mutandis_src");
+              var old_src = mutation.target.getAttribute("src");
+              if (old_src !== old_mutandis_src && MAX_ATTR > attribute_count) {
+                  var new_url = old_src + "/mut"+attribute_count;
+                  var mutandis_src = document.createAttribute("mutandis_src");
                   mutandis_src.value = new_url;
                   mutation.target.setAttributeNode(mutandis_src);
+                  mutation.target.setAttribute("mutandis_src", new_url);
                   mutation.target.setAttribute("src", new_url);
-                  console.log("attribute re-modified to ", mutation.target.src);
-              } else {
-                console.log("non-src attrbute modified");
               }
             }
         }
