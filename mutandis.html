@@ -1,0 +1,73 @@
+<html>
+  <body id=observe-scope>
+  <script>
+    var ELEMENT_NODE = 1;
+    var MAX_ATTR = 99;
+    var attribute_count = 0;
+    console.log("X");
+    // Select the node that will be observed for mutations
+    var targetNode = document.getElementById('observe-scope');
+
+    // Options for the observer (which mutations to observe)
+    var config = { attributes: true, childList: true, subtree: true, attributeFilter:["src"] };
+
+    // Callback function to execute when mutations are observed
+    var callback = function(mutationsList) {
+        for(var mutation of mutationsList) {
+          console.log(">>>> new mutation:");
+            console.log(mutation);
+            if (mutation.type == 'childList') {
+                for(var child of mutation.addedNodes) {
+                  // if the child has a source and it doesn't start with mutandis, edit it
+                  if (child.nodeType === ELEMENT_NODE && child.hasAttribute("src")) {
+                    console.log("child was", child.src);
+                    new_url = child.src + "/mutC";
+                    console.log("child modified to", child.src);
+                    mutandis_src = document.createAttribute("mutandis_src");
+                    child.setAttributeNode(mutandis_src);
+                    child.setAttribute("mutandis_src", new_url);
+                    child.src = new_url
+                    child.mutandis_src = child.src;
+                  }
+                }
+            }
+            else if (mutation.type == 'attributes') {
+              attribute_count = attribute_count + 1
+              if (mutation.attributeName === "src" && 
+                (!mutation.target.hasAttribute("mutandis_src") || mutation.target.mutandis_src !== mutation.target.src) && 
+                MAX_ATTR > attribute_count) {
+                  console.log("SRC:"+mutation.target.src);
+                  console.log("M_SRC:"+mutation.target.mutandis_src);
+                  console.log(mutation.target.src === mutation.target.mutandis_src);
+                  var new_url = mutation.target.src + "/mut"+attribute_count;
+                  window.alert("mutandis: "+ new_url+ attribute_count);
+                  mutandis_src = document.createAttribute("mutandis_src");
+                  mutandis_src.value = new_url;
+                  mutation.target.setAttributeNode(mutandis_src);
+                  mutation.target.setAttribute("src", new_url);
+                  console.log("attribute re-modified to ", mutation.target.src);
+              } else {
+                console.log("non-src attrbute modified");
+              }
+            }
+        }
+    };
+
+    // Create an observer instance linked to the callback function
+    var observer = new MutationObserver(callback);
+
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+
+    //// Later, you can stop observing
+    // observer.disconnect();
+  </script>
+
+    <img src="fake.jpg" id="target">
+
+  <script>
+    document.getElementById("target").src="done.jpg"
+  </script>
+  </body>
+</html>
+
