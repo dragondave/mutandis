@@ -29,10 +29,10 @@ var modify_url = function(url) {
 }
 
 var ELEMENT_NODE = 1;
-var MAX_ATTR = 99;
+var MAX_ATTR = Number.MAX_VALUE;  // change if debugging cascading attribute changes
 var attribute_count = 0;
 // Select the node that will be observed for mutations
-var targetNode = document.getElementById('mutandis-scope');
+var targetNode = document.getElementsByTagName("body")[0];
 
 // Options for the observer (which mutations to observe)
 var config = { attributes: true, childList: true, subtree: true, attributeFilter:["src"] };

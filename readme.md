@@ -1,4 +1,4 @@
-* Import the script immediately after the relevant tag -- currently identified by the id of "mutandis-scope"
+* Import the script immediately after the body tag or whichever top-level tag you're using
   Mutandis won't catch any URLs created before it's imported.
 * The URL we are serving contains ".zip/" and files will be served relative to that point
 * There are potential collisions between domains and files: (e.g. http://foo.com/x and /foo.com/x)
