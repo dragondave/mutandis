@@ -27,7 +27,9 @@
         // preserve as-is if no leading / nor https:// 
         new_url = url
       }
-      return new_url.replace(/[?&]/g, '_'); // replace query params with underscores 
+      final_url = new_url.replace(/[?&]/g, '_'); // replace query params with underscores
+      console.log("Mutated "+url+ " into "+final_url);
+      return final_url
     }
 
     console.log(modify_url("baz"));
@@ -54,7 +56,7 @@
             if (mutation.type == 'childList') { 
                 for(var child of mutation.addedNodes) {
                   if (child.nodeType === ELEMENT_NODE && child.hasAttribute("src")) {
-                    var new_url = modify_url(child.src);
+                    var new_url = modify_url(child.getAttribute("src"));
                     var mutandis_src = document.createAttribute("mutandis_src");
                     mutandis_src.value=new_url;
                     child.setAttributeNode(mutandis_src);
@@ -88,7 +90,7 @@
     //// Later, you can stop observing
     // observer.disconnect();
   </script>
-
+    <img src="/fake.jpg">
     <img src="/fake.jpg" id="target">
 
   <script>
