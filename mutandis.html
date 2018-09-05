@@ -1,6 +1,28 @@
 <html>
   <body id=observe-scope>
   <script>
+    var modify_url = function(url) {
+      /* if webpage http://foo.com/en/bar:
+         baz -> foo.com/en/baz
+         /baz -> foo.com/baz
+         http://wub.org/wug -> wub.org/wug
+         /a?b=c&d=e -> foo.com/a_b=c_d=e
+         /%21 -> foo.com/%21 (but needs to be foo.com/! in zip file)
+         /q#n -> foo.com/q#n (but needs to be foo.com/q in zip file)
+         POST requests aren't compatible. :( */ 
+      full_original_url = new URL(url, window.location.href).toString() // still contains https://
+      zip_url = full_original_url.replace(/(^\w+:|^)\/\//, ''); // remove https://
+      return zip_url.replace(/[?&]/g, '_'); // replace query params with underscores 
+    }
+
+    console.log(modify_url("baz"));
+    console.log(modify_url("/baz"));
+    console.log(modify_url("http://wub.org/wug"));
+    console.log(modify_url("a?b=c&d=e"));
+    console.log(modify_url("/%21"));
+    console.log(modify_url("/q#n"));
+  </script>
+  <script>
     var ELEMENT_NODE = 1;
     var MAX_ATTR = 99;
     var attribute_count = 0;
