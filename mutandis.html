@@ -2,23 +2,38 @@
   <body id=observe-scope>
   <script>
     var modify_url = function(url) {
-      /* if webpage http://foo.com/en/bar:
-         baz -> foo.com/en/baz
-         /baz -> foo.com/baz
-         http://wub.org/wug -> wub.org/wug
-         /a?b=c&d=e -> foo.com/a_b=c_d=e
-         /%21 -> foo.com/%21 (but needs to be foo.com/! in zip file)
-         /q#n -> foo.com/q#n (but needs to be foo.com/q in zip file)
-         POST requests aren't compatible. :( */ 
-      full_original_url = new URL(url, window.location.href).toString() // still contains https://
-      zip_url = full_original_url.replace(/(^\w+:|^)\/\//, ''); // remove https://
-      return zip_url.replace(/[?&]/g, '_'); // replace query params with underscores 
+      /* if webpage https://foo.com/71.zip/en/foo.html
+    then ziproot/ = ^^^^^^^^^^^^^^^^^^^^^^^ -- note trailing /
+
+                  orig. URL | JS                  | Zip File
+                        baz | baz or              | en/baz
+                            | ziproot/en/baz      | en/baz
+                       /baz | ziproot/baz         | baz
+         http://wub.org/wug | ziproot/wub.org/wug | wub.org/wug
+                 /a?b=c&d=e | ziproot/a_b=c_d=e   | a_b=c_d=e
+                       /%21 | ziproot/%21         | ! <<- special
+                       /q#n | ziproot/q#n         | q <<- special
+         
+      POST requests aren't compatible. :(  */
+      [_, ziproot, remainder] = window.location.href.match(/(.*\.zip\/)(.*)/)
+      // if contains // or / append rest to ziproot
+      double_slash = url.match(/\/\/(.*)/)
+      single_slash = url.match(/\/(.*)/)
+      if (double_slash) { // https://x -> ziproot/x
+        new_url = ziproot + double_slash[1]
+      } else if (single_slash) { // /x -> ziproot/x
+        new_url = ziproot + single_slash[1]
+      } else {
+        // preserve as-is if no leading / nor https:// 
+        new_url = url
+      }
+      return new_url.replace(/[?&]/g, '_'); // replace query params with underscores 
     }
 
     console.log(modify_url("baz"));
     console.log(modify_url("/baz"));
     console.log(modify_url("http://wub.org/wug"));
-    console.log(modify_url("a?b=c&d=e"));
+    console.log(modify_url("/a?b=c&d=e"));
     console.log(modify_url("/%21"));
     console.log(modify_url("/q#n"));
   </script>
@@ -39,7 +54,7 @@
             if (mutation.type == 'childList') { 
                 for(var child of mutation.addedNodes) {
                   if (child.nodeType === ELEMENT_NODE && child.hasAttribute("src")) {
-                    var new_url = child.src + "/mutC";
+                    var new_url = modify_url(child.src);
                     var mutandis_src = document.createAttribute("mutandis_src");
                     mutandis_src.value=new_url;
                     child.setAttributeNode(mutandis_src);
@@ -54,7 +69,7 @@
               var old_src = mutation.target.getAttribute("src");
               // only modify changes that we didn't create, and don't change too many!
               if (old_src !== old_mutandis_src && MAX_ATTR > attribute_count) {
-                  var new_url = old_src + "/mut"+attribute_count;
+                  var new_url = modify_url(old_src);
                   var mutandis_src = document.createAttribute("mutandis_src");
                   mutandis_src.value = new_url;
                   mutation.target.setAttributeNode(mutandis_src);
@@ -74,10 +89,10 @@
     // observer.disconnect();
   </script>
 
-    <img src="fake.jpg" id="target">
+    <img src="/fake.jpg" id="target">
 
   <script>
-    document.getElementById("target").src="done.jpg"
+    document.getElementById("target").src="https://fake.invalid/done.jpg"
   </script>
   </body>
 </html>
