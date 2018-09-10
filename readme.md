@@ -15,4 +15,4 @@ then ziproot/ is foo.com/71.zip/ -- note trailing /
                      /%21 | ziproot/%21         | ! <<- special
                      /q#n | ziproot/q#n         | q <<- special
        
-
+Contemplate adding: `<link href="...">` support (CSS)

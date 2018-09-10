@@ -32,7 +32,7 @@ var ELEMENT_NODE = 1;
 var MAX_ATTR = Number.MAX_VALUE;  // change if debugging cascading attribute changes
 var attribute_count = 0;
 // Select the node that will be observed for mutations
-var targetNode = document.getElementsByTagName("body")[0];
+var targetNode = document.getElementsByTagName("html")[0];
 
 // Options for the observer (which mutations to observe)
 var config = { attributes: true, childList: true, subtree: true, attributeFilter:["src"] };
@@ -40,12 +40,14 @@ var config = { attributes: true, childList: true, subtree: true, attributeFilter
 // Callback function to execute when mutations are observed
 var callback = function(mutationsList) {
     for(var mutation of mutationsList) {
+        // console.log(mutation);
         // childList: nodes probably added
-        if (mutation.type == 'childList') { 
+        if (mutation.type == 'childList') {
             for(var child of mutation.addedNodes) {
                 if (child.nodeType === ELEMENT_NODE && child.hasAttribute("src")) {
                     var new_url = modify_url(child.getAttribute("src"));
                     var mutandis_src = document.createAttribute("mutandis_src");
+                    console.log("MUTANDIS|"+child.src+"|"+child.getAttribute("src")+"|"+new_url)
                     mutandis_src.value=new_url;
                     child.setAttributeNode(mutandis_src);
                     child.setAttribute("src", new_url);
@@ -61,6 +63,7 @@ var callback = function(mutationsList) {
             if (old_src !== old_mutandis_src && MAX_ATTR > attribute_count) {
                 var new_url = modify_url(old_src);
                 var mutandis_src = document.createAttribute("mutandis_src");
+                console.log("MUTANDIS|"+mutation.target.src+"|"+mutation.target.getAttribute("src")+"|"+new_url)
                 mutandis_src.value = new_url;
                 mutation.target.setAttributeNode(mutandis_src);
                 mutation.target.setAttribute("src", new_url);
