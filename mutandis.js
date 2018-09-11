@@ -30,12 +30,13 @@ var modify_url = function(url) {
 
 var ELEMENT_NODE = 1;
 var MAX_ATTR = Number.MAX_VALUE;  // change if debugging cascading attribute changes
+var ATTRS = ["src", "href"]
 var attribute_count = 0;
 // Select the node that will be observed for mutations
 var targetNode = document.getElementsByTagName("html")[0];
 
 // Options for the observer (which mutations to observe)
-var config = { attributes: true, childList: true, subtree: true, attributeFilter:["src"] };
+var config = { attributes: true, childList: true, subtree: true, attributeFilter: ATTRS };
 
 // Callback function to execute when mutations are observed
 var callback = function(mutationsList) {
@@ -44,29 +45,37 @@ var callback = function(mutationsList) {
         // childList: nodes probably added
         if (mutation.type == 'childList') {
             for(var child of mutation.addedNodes) {
-                if (child.nodeType === ELEMENT_NODE && child.hasAttribute("src")) {
-                    var new_url = modify_url(child.getAttribute("src"));
-                    var mutandis_src = document.createAttribute("mutandis_src");
-                    console.log("MUTANDIS|"+child.src+"|"+child.getAttribute("src")+"|"+new_url)
-                    mutandis_src.value=new_url;
-                    child.setAttributeNode(mutandis_src);
-                    child.setAttribute("src", new_url);
+                for(var attr of ATTRS) {
+                  if (child.nodeType === ELEMENT_NODE && child.hasAttribute(attr)) {
+                      var new_url = modify_url(child.getAttribute(attr));
+                      var mutandis_attr = document.createAttribute("mutandis_"+attr);
+                      if (attr === "src") {
+                        console.log("MUTANDIS|"+child.src+"|"+child.getAttribute(attr)+"|"+new_url)
+                      } else {
+                        console.log("MUTANDIS|"+child.href+"|"+child.getAttribute(attr)+"|"+new_url)}; 
+                      mutandis_attr.value=new_url;
+                      child.setAttributeNode(mutandis_attr);
+                      child.setAttribute(attr, new_url);
+                  }
                 }
             }
         }
         // attributes: attributes modified -- only src due to attributeFilter above
         else if (mutation.type == 'attributes') {
+            var attr = mutation.attributeName
             attribute_count = attribute_count + 1;
-            var old_mutandis_src = mutation.target.getAttribute("mutandis_src");
-            var old_src = mutation.target.getAttribute("src");
+            var old_mutandis_attr = mutation.target.getAttribute("mutandis_"+attr);
+            var old_attr = mutation.target.getAttribute(attr);
             // only modify changes that we didn't create, and don't change too many!
-            if (old_src !== old_mutandis_src && MAX_ATTR > attribute_count) {
-                var new_url = modify_url(old_src);
-                var mutandis_src = document.createAttribute("mutandis_src");
-                console.log("MUTANDIS|"+mutation.target.src+"|"+mutation.target.getAttribute("src")+"|"+new_url)
-                mutandis_src.value = new_url;
-                mutation.target.setAttributeNode(mutandis_src);
-                mutation.target.setAttribute("src", new_url);
+            if (old_attr !== old_mutandis_attr && MAX_ATTR > attribute_count) {
+                var new_url = modify_url(old_attr);
+                var mutandis_attr = document.createAttribute("mutandis_"+attr);
+                if (attr === "src") {
+                  console.log("MUTANDIS|"+mutation.target.src+"|"+mutation.target.getAttribute(atttr)+"|"+new_url) } else {
+                  console.log("MUTANDIS|"+mutation.target.href+"|"+mutation.target.getAttribute(attr)+"|"+new_url) };
+                mutandis_attr.value = new_url;
+                mutation.target.setAttributeNode(mutandis_attr);
+                mutation.target.setAttribute(attr, new_url);
             }
         }
     }
