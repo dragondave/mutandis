@@ -31,8 +31,12 @@ def parse_log(log):
     not_found_urls = set()
     mutated_urls = {}
     for line in log:
-        if "MUTANDIS|" in line:
-            _, full_url, original_url, new_url = line.split("|")
+        if "MUTANDIS%%" in line:
+            try:
+                _, full_url, original_url, new_url = line.split("%%")
+            except:
+                print line
+                raise
             full_url = full_url.replace("http://localhost:8000", domain)
             mutated_urls[new_url] = full_url
         if "404 (File not found)" in line:

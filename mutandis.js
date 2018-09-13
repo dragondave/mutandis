@@ -50,9 +50,9 @@ var callback = function(mutationsList) {
                       var new_url = modify_url(child.getAttribute(attr));
                       var mutandis_attr = document.createAttribute("mutandis_"+attr);
                       if (attr === "src") {
-                        console.log("MUTANDIS|"+child.src+"|"+child.getAttribute(attr)+"|"+new_url)
+                        console.log("MUTANDIS%%"+child.src+"%%"+child.getAttribute(attr)+"%%"+new_url)
                       } else {
-                        console.log("MUTANDIS|"+child.href+"|"+child.getAttribute(attr)+"|"+new_url)}; 
+                        console.log("MUTANDIS%%"+child.href+"%%"+child.getAttribute(attr)+"%%"+new_url)}; 
                       mutandis_attr.value=new_url;
                       child.setAttributeNode(mutandis_attr);
                       child.setAttribute(attr, new_url);
@@ -71,8 +71,8 @@ var callback = function(mutationsList) {
                 var new_url = modify_url(old_attr);
                 var mutandis_attr = document.createAttribute("mutandis_"+attr);
                 if (attr === "src") {
-                  console.log("MUTANDIS|"+mutation.target.src+"|"+mutation.target.getAttribute(atttr)+"|"+new_url) } else {
-                  console.log("MUTANDIS|"+mutation.target.href+"|"+mutation.target.getAttribute(attr)+"|"+new_url) };
+                  console.log("MUTANDIS%%"+mutation.target.src+"%%"+mutation.target.getAttribute(atttr)+"%%"+new_url) } else {
+                  console.log("MUTANDIS%%"+mutation.target.href+"%%"+mutation.target.getAttribute(attr)+"%%"+new_url) };
                 mutandis_attr.value = new_url;
                 mutation.target.setAttributeNode(mutandis_attr);
                 mutation.target.setAttribute(attr, new_url);
